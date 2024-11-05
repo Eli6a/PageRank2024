@@ -1,0 +1,3 @@
+gcloud init
+gcloud auth login
+gsutil -m cp -r gs://public_lddm_data/* /data/
