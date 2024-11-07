@@ -12,7 +12,7 @@ spark = SparkSession.builder\
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-with open("data/small_page_links.nt", "r") as file:
+with open("../data/small_page_links.nt", "r") as file:
     lines = file.readlines()
 
 split_lines = [line.strip().split() for line in lines]
@@ -76,13 +76,12 @@ for iteration in range(1):
 
   ranks_df = ranks_df.drop("total_contrib")
 
-  joined_df = joined_df.drop("rank").join(ranks_df, on="source", how="left")
-
-  # Collects all URL ranks and dump them to console.
+  joined_df = joined_df.drop("rank").join(ranks_df, on="source", how="inner")
 
 end_time = time.time()
 execution_time = end_time - start_time
 
+# Collects all URL ranks and dump them to console.
 for row in ranks_df.collect():
     print("%s has rank: %s." % (row["source"], row["rank"]))
 
