@@ -8,15 +8,17 @@ pip install -r requirements.txt
 
 ## en dataproc...
 
+gsutil mb -l europe-west3 gs://bucket_pagerank2024/
+
+mkdir -p ~/data/
+
+gsutil -m cp -r gs://public_lddm_data/* ~/data/
+
 ## copy data
-gsutil cp small_page_links.nt gs://myown_bucket/
+gsutil cp ~/data/small_page_links.nt gs://bucket_pagerank2024/
 
 ## copy pig code
-gsutil cp pagerank-notype.py gs://myown_bucket/
-
-## Clean out directory
-gsutil rm -rf gs://myown_bucket/out
-
+gsutil cp main/pypagerank.py gs://bucket_pagerank2024/
 
 # Boucle sur les configurations de clusters
 for num_workers in 1 2 4; do
@@ -37,10 +39,9 @@ for num_workers in 1 2 4; do
   gcloud dataproc jobs submit pyspark \
     --region europe-west3 \
     --cluster "cluster-${num_workers}-nodes" \
-    gs://myown_bucket/pagerank-notype.py -- gs://myown_bucket/small_page_links.nt 3
+    gs://bucket_pagerank2024/pagerank-notype.py -- gs://bucket_pagerank2024/small_page_links.nt 3
   
-## access results
-gsutil cat gs://myown_bucket/out/pagerank_data_10/part-r-00000
+    # delete cluster...
+    gcloud dataproc clusters delete "cluster-${num_workers}-nodes" --region europe-west3 --quiet
 
-## delete cluster...
-gcloud dataproc clusters delete "cluster-${num_workers}-nodes" --region europe-west3 --quiet
+done
