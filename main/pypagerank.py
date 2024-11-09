@@ -3,16 +3,15 @@ import findspark
 findspark.init()
 
 from pyspark.sql import SparkSession
-spark = SparkSession.builder\
-        .master("local")\
-        .appName("Colab")\
-        .config('spark.ui.port', '4050')\
-        .getOrCreate()
+spark = SparkSession \
+  .builder \
+  .appName("PythonPageRank") \
+  .getOrCreate()
 
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-lines = spark.read.text("data/small_page_links.nt").rdd.map(lambda r: r[0])
+lines = spark.read.text("gs://bucket_pagerank2024/small_page_links.nt").rdd.map(lambda r: r[0])
 lines.take(5)
 
 import re
@@ -67,8 +66,9 @@ for iteration in range(1):
 
 end_time = time.time()
 execution_time = end_time - start_time
-
-for (link, rank) in ranks.collect():
-  print("%s has rank: %s." % (link, rank))
-
 print(f"Temps d'exécution : {execution_time} secondes")
+
+ranks.saveAsTextFile("gs://bucket_pagerank2024/out/pagerank_RDD")
+
+# for (link, rank) in ranks.collect():
+#   print("%s has rank: %s." % (link, rank))

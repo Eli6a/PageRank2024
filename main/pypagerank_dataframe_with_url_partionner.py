@@ -1,20 +1,31 @@
 import findspark
+from google.cloud import storage
+
+client = storage.Client()
+
+bucket_name = "bucket_pagerank2024"
+file_name = "small_page_links.nt"
+
+bucket = client.get_bucket(bucket_name)
+blob = bucket.blob(file_name)
+
+content = blob.download_as_text()
+lines = content.splitlines()
 
 findspark.init()
 
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder\
-        .master("local")\
-        .appName("Colab")\
-        .config('spark.ui.port', '4050')\
-        .getOrCreate()
+spark = SparkSession \
+  .builder \
+  .appName("PythonPageRank") \
+  .getOrCreate()
 
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-with open("data/small_page_links.nt", "r") as file:
-    lines = file.readlines()
+# with open("gs://bucket_pagerank2024/small_page_links.nt", "r") as file:
+#     lines = file.readlines()
 
 split_lines = [line.strip().split() for line in lines]
 
@@ -87,7 +98,9 @@ for iteration in range(1):
 end_time = time.time()
 execution_time = end_time - start_time
 
-for row in ranks_df.collect():
-    print("%s has rank: %s." % (row["source"], row["rank"]))
+# for row in ranks_df.collect():
+#     print("%s has rank: %s." % (row["source"], row["rank"]))
 
 print(f"Temps d'exécution : {execution_time} secondes")
+
+ranks_df.select("source", "rank").rdd.map(lambda row: f"{row['source']}\t{row['rank']}").saveAsTextFile("gs://bucket_pagerank2024/out/ranks_dataframe_with_partionner_parquet")
