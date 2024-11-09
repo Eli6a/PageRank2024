@@ -87,9 +87,7 @@ for iteration in range(1):
 
   ranks_df = ranks_df.drop("total_contrib")
 
-  joined_df = joined_df.drop("rank").join(ranks_df, on="source", how="left")
-
-  # Collects all URL ranks and dump them to console.
+  joined_df = joined_df.drop("rank").join(ranks_df, on="source", how="inner")
 
 end_time = time.time()
 execution_time = end_time - start_time
