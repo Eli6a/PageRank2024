@@ -1,16 +1,6 @@
 import findspark
-from google.cloud import storage
 
-client = storage.Client()
-
-bucket_name = "bucket_pagerank2024"
 file_name = "small_page_links.nt"
-
-bucket = client.get_bucket(bucket_name)
-blob = bucket.blob(file_name)
-
-content = blob.download_as_text()
-lines = content.splitlines()
 
 findspark.init()
 
@@ -24,15 +14,14 @@ spark = SparkSession \
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-# with open("gs://bucket_pagerank2024/small_page_links.nt", "r") as file:
-#     lines = file.readlines()
+df_text = spark.read.text("gs://bucket_pagerank2024/"+file_name)
 
-split_lines = [line.strip().split() for line in lines]
+from pyspark.sql.functions import split
 
-parsed_data = [(str(triple[0]), str(triple[1]), str(triple[2])) for triple in split_lines]
-df = spark.createDataFrame(parsed_data, schema='subject string, predicate string, object string')
+df = df_text.select(split(df_text.value, "\s+").alias("columns"))
+df = df.selectExpr("columns[0] as subject", "columns[1] as predicate", "columns[2] as object")
 
-df.head(5)
+# df.head(5)
 
 import re
 def computeContribs(urls, rank) :
@@ -66,26 +55,25 @@ links_df = links_df.cache()
 # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
 ranks_df = links_df.select("source").distinct().withColumn("rank", F.lit(1.0))
 
-links_df.head(5)
+# links_df.head(5)
 
 links_df = links_df.withColumn("count", F.size("neighbors"))
 links_df = links_df.sort(F.col("count").desc())
-links_df.select("source", "count").head(10)
+# links_df.select("source", "count").head(10)
 
-ranks_df.head(5)
+# ranks_df.head(5)
 
 joined_df = links_df.join(ranks_df, on="source", how="inner")
-joined_df.head(5)
+joined_df = joined_df.withColumn("neighbor_count", F.size("neighbors"))
+# joined_df.head(5)
 
-contrib = [(url, contrib) for row in joined_df.collect() for url, contrib in computeContribs(row["neighbors"], row["rank"])]
-contrib_df = spark.createDataFrame(contrib, schema='source string, contrib float')
+contrib_df = joined_df.select(F.explode("neighbors").alias("source"), (F.col("rank") / F.col("neighbor_count")).alias("contrib"))
 
-contrib_df.head(5)
+# contrib_df.head(5)
 
 for iteration in range(1):
   # Calculates URL contributions to the rank of other URLs.
-  contrib = [(url, contrib) for row in joined_df.collect() for url, contrib in computeContribs(row["neighbors"], row["rank"])]
-  contrib_df = spark.createDataFrame(contrib, schema='source string, contrib float')
+  contrib_df = joined_df.select(F.explode("neighbors").alias("source"), (F.col("rank") / F.col("neighbor_count")).alias("contrib"))
 
   # Re-calculates URL ranks based on neighbor contributions.
   ranks_df = contrib_df.groupBy("source").agg(F.sum("contrib").alias("total_contrib"))
