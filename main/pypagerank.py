@@ -17,7 +17,7 @@ spark = SparkSession \
 # !ls
 
 lines = spark.read.text(input_path).rdd.map(lambda r: r[0])
-lines.take(5)
+# lines.take(5)
 
 import re
 def computeContribs(urls, rank) :
@@ -41,21 +41,21 @@ start_time = time.time()
 # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
 ranks = links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
 
-links.take(5)
+# links.take(5)
 
 #groupByKey makes lists !!
-links.map(lambda x: (x[0],list(x[1]))).take(5)
+# links.map(lambda x: (x[0],list(x[1]))).take(5)
 
-#groupByKey makes lists !!
-links.map(lambda x: (x[0],len(list(x[1])))).sortBy(lambda x:x[1],ascending=False).take(10)
+# #groupByKey makes lists !!
+# links.map(lambda x: (x[0],len(list(x[1])))).sortBy(lambda x:x[1],ascending=False).take(10)
 
-ranks.take(5)
+# ranks.take(5)
 
-links.join(ranks).take(5)
+# links.join(ranks).take(5)
 
-links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(
-            url_urls_rank[1][0], url_urls_rank[1][1]  # type: ignore[arg-type]
-        )).take(5)
+# links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(
+#             url_urls_rank[1][0], url_urls_rank[1][1]  # type: ignore[arg-type]
+#         )).take(5)
 
 from operator import add
 for iteration in range(int(sys.argv[2])):

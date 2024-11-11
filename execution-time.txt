@@ -1,0 +1,6 @@
+
+('pypagerank_dataframe-0', 184.591)
+('pypagerank_dataframe_with_url_partionner-0', 162.534)
+('pypagerank-0', 175.782)
+('pypagerank_with_url_partionner-0', 174.613)
+('pypagerank_dataframe-2', 1258.2)

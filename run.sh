@@ -82,7 +82,7 @@ for num_workers in 0 2 4; do
   echo "Soumission du job PySpark sur le cluster cluster-${num_workers}-nodes"
   
   # Boucle sur les scripts pythons
-  for script in pypagerank.py pypagerank_with_url_partionner.py pypagerank_dataframe.py pypagerank_dataframe_with_url_partionner.py; do
+  for script in pypagerank_dataframe.py pypagerank_dataframe_with_url_partionner.py pypagerank.py pypagerank_with_url_partionner.py; do
     script_name=$(basename "$script" .py)
     output_path="${bucket}out/${script_name}-${num_workers}"
 
@@ -93,6 +93,7 @@ for num_workers in 0 2 4; do
     gcloud dataproc jobs submit pyspark \
       --region europe-west3 \
       --cluster "cluster-${num_workers}-nodes" \
+      --properties=spark.executor.memory=4g,spark.executor.cores=4,spark.driver.memory=4g,spark.driver.cores=4 \
       "${bucket}${script}" -- "${bucket}${text_file}" 3 "$output_path"
 
     end_time=$(date +%s.%N)

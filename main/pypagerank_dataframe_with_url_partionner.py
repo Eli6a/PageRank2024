@@ -50,7 +50,7 @@ import time
 start_time = time.time()
 
 # Ajout du partitionnement par URL (exemple de partitionnement par 'source')
-num_partitions = 4
+num_partitions = 16
 links_df = links_df.repartition(num_partitions, "source")
 
 links_df = links_df.cache()
