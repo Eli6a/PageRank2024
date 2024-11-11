@@ -1,3 +1,8 @@
+import sys
+
+input_path = sys.argv[1]
+output_path = sys.argv[3]
+
 import findspark
 
 findspark.init()
@@ -11,7 +16,7 @@ spark = SparkSession \
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-lines = spark.read.text("gs://bucket_pagerank2024/small_page_links.nt").rdd.map(lambda r: r[0])
+lines = spark.read.text(input_path).rdd.map(lambda r: r[0])
 lines.take(5)
 
 import re
@@ -56,7 +61,7 @@ links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(
         )).take(5)
 
 from operator import add
-for iteration in range(1):
+for iteration in range(int(sys.argv[2])):
   # Calculates URL contributions to the rank of other URLs.
   contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(
             url_urls_rank[1][0], url_urls_rank[1][1]  # type: ignore[arg-type]
@@ -66,12 +71,12 @@ for iteration in range(1):
   ranks = contribs.reduceByKey(add).mapValues(lambda rank: rank * 0.85 + 0.15)
 
     # Collects all URL ranks and dump them to console.
-end_time = time.time()  # Arrête le chronomètre
+
+end_time = time.time()
 execution_time = end_time - start_time
+print(f"Temps d'exécution : {execution_time} secondes")
+
+ranks.saveAsTextFile(output_path)
 
 # for (link, rank) in ranks.collect():
 #   print("%s has rank: %s." % (link, rank))
-
-print(f"Temps d'exécution : {execution_time} secondes")
-
-ranks.saveAsTextFile("gs://bucket_pagerank2024/out/pagerank_RDD_with_partioner")

@@ -1,6 +1,9 @@
-import findspark
+import sys
 
-file_name = "small_page_links.nt"
+input_path = sys.argv[1]
+output_path = sys.argv[3]
+
+import findspark
 
 findspark.init()
 
@@ -14,7 +17,7 @@ spark = SparkSession \
 # !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
 # !ls
 
-df_text = spark.read.text("gs://bucket_pagerank2024/"+file_name)
+df_text = spark.read.text(input_path)
 
 from pyspark.sql.functions import split
 
@@ -71,7 +74,7 @@ contrib_df = joined_df.select(F.explode("neighbors").alias("source"), (F.col("ra
 
 # contrib_df.head(5)
 
-for iteration in range(1):
+for iteration in range(int(sys.argv[2])):
   # Calculates URL contributions to the rank of other URLs.
   contrib_df = joined_df.select(F.explode("neighbors").alias("source"), (F.col("rank") / F.col("neighbor_count")).alias("contrib"))
 
@@ -91,4 +94,4 @@ execution_time = end_time - start_time
 
 print(f"Temps d'exécution : {execution_time} secondes")
 
-ranks_df.select("source", "rank").rdd.map(lambda row: f"{row['source']}\t{row['rank']}").saveAsTextFile("gs://bucket_pagerank2024/out/ranks_dataframe_with_partionner_parquet")
+ranks_df.select("source", "rank").rdd.map(lambda row: f"({row['source']},{row['rank']})").saveAsTextFile(output_path)
