@@ -10,8 +10,6 @@ git_folder_path="/home/sisa_elis/PageRank2024/"
 echo "Installation des packages Python requis"
 pip install -r requirements.txt
 
-## En local ->
-## pig -x local -
 
 ## en dataproc...
 echo "Création du bucket Google Cloud Storage"
@@ -50,7 +48,7 @@ gsutil rm -rf "${bucket}out/"
 gsutil cp /dev/null "${bucket}out/"
 
 # Créer ou vide execution-time.txt
-echo "" > "${git_folder_path}execution-time.txt"
+# echo "" > "${git_folder_path}execution-time.txt"
 
 # Boucle sur les configurations de clusters
 for num_workers in 0 2 4; do
@@ -58,8 +56,7 @@ for num_workers in 0 2 4; do
     gcloud dataproc clusters create "cluster-${num_workers}-nodes" \
       --enable-component-gateway \
       --region europe-west3 \
-      --zone europe-west3-c \
-      --master-machine-type n1-standard-4 \
+      --master-machine-type n1-highmem-8 \
       --master-boot-disk-size 500 \
       --num-workers "$num_workers" \
       --image-version 2.0-debian10 \
@@ -69,8 +66,7 @@ for num_workers in 0 2 4; do
     gcloud dataproc clusters create "cluster-${num_workers}-nodes" \
       --enable-component-gateway \
       --region europe-west3 \
-      --zone europe-west3-c \
-      --master-machine-type n1-standard-4 \
+      --master-machine-type n1-highmem-8 \
       --master-boot-disk-size 500 \
       --num-workers "$num_workers" \
       --worker-machine-type n1-standard-4 \
@@ -82,7 +78,7 @@ for num_workers in 0 2 4; do
   echo "Soumission du job PySpark sur le cluster cluster-${num_workers}-nodes"
   
   # Boucle sur les scripts pythons
-  for script in pypagerank_dataframe.py pypagerank_dataframe_with_url_partionner.py pypagerank.py pypagerank_with_url_partionner.py; do
+  for script in pypagerank_dataframe.py pypagerank_dataframe_with_url_partionner.py; do # pypagerank.py pypagerank_with_url_partionner.py
     script_name=$(basename "$script" .py)
     output_path="${bucket}out/${script_name}-${num_workers}"
 
@@ -93,7 +89,7 @@ for num_workers in 0 2 4; do
     gcloud dataproc jobs submit pyspark \
       --region europe-west3 \
       --cluster "cluster-${num_workers}-nodes" \
-      --properties=spark.executor.memory=4g,spark.executor.cores=4,spark.driver.memory=4g,spark.driver.cores=4 \
+      --properties=spark.executor.memory=10g,spark.executor.cores=4,spark.driver.memory=10g,spark.driver.cores=4 \
       "${bucket}${script}" -- "${bucket}${text_file}" 3 "$output_path"
 
     end_time=$(date +%s.%N)
@@ -116,6 +112,6 @@ for num_workers in 0 2 4; do
 done
 
 echo "Copie du output bucket en local"
-gsutil cp -r "${bucket}out/" "$git_folder_path"
+gsutil cp -r "${bucket}out/" "${git_folder_path}"
 
 echo "Script terminé"

@@ -14,9 +14,6 @@ spark = SparkSession \
   .appName("PythonPageRank") \
   .getOrCreate()
 
-# !wget -q https://storage.googleapis.com/public_lddm_data/small_page_links.nt
-# !ls
-
 df_text = spark.read.text(input_path)
 
 from pyspark.sql.functions import split
@@ -24,15 +21,12 @@ from pyspark.sql.functions import split
 df = df_text.select(split(df_text.value, "\s+").alias("columns"))
 df = df.selectExpr("columns[0] as subject", "columns[1] as predicate", "columns[2] as object")
 
-# df.head(5)
-
 import re
 def computeContribs(urls, rank) :
     """Calculates URL contributions to the rank of other URLs."""
     num_urls = len(urls)
     for url in urls:
         yield (url, rank / num_urls)
-
 
 def parseNeighbors(urls) :
     """Parses a urls pair string into urls pair."""
@@ -58,21 +52,11 @@ links_df = links_df.cache()
 # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
 ranks_df = links_df.select("source").distinct().withColumn("rank", F.lit(1.0))
 
-# links_df.head(5)
-
 links_df = links_df.withColumn("count", F.size("neighbors"))
 links_df = links_df.sort(F.col("count").desc())
-# links_df.select("source", "count").head(10)
-
-# ranks_df.head(5)
 
 joined_df = links_df.join(ranks_df, on="source", how="inner")
 joined_df = joined_df.withColumn("neighbor_count", F.size("neighbors"))
-# joined_df.head(5)
-
-contrib_df = joined_df.select(F.explode("neighbors").alias("source"), (F.col("rank") / F.col("neighbor_count")).alias("contrib"))
-
-# contrib_df.head(5)
 
 for iteration in range(int(sys.argv[2])):
   # Calculates URL contributions to the rank of other URLs.
@@ -88,9 +72,6 @@ for iteration in range(int(sys.argv[2])):
 
 end_time = time.time()
 execution_time = end_time - start_time
-
-# for row in ranks_df.collect():
-#     print("%s has rank: %s." % (row["source"], row["rank"]))
 
 print(f"Temps d'exécution : {execution_time} secondes")
 
