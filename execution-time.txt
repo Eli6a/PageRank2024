@@ -1,19 +1,18 @@
-# 8 cores
-('pypagerank-0', 2622)
-('pypagerank_with_url_partionner-0', 2600)
-('pypagerank_dataframe-0', 746.277)
-('pypagerank_dataframe_with_url_partionner-0', 766.673)  error
-# 8 cores on workers
-('pypagerank-2', 1691.7)
-('pypagerank_with_url_partionner-2', 1423)
-('pypagerank_dataframe-2', 443.221)
-('pypagerank_dataframe_with_url_partionner-2', 416.764)
-# 6 cores on workers
-('pypagerank-2', 2603.19)
-('pypagerank_with_url_partionner-2', 2543)
-('pypagerank_dataframe-2', 835.362)
-('pypagerank_dataframe_with_url_partionner-2', 785.516)
-('pypagerank-4', 2103.47)
-('pypagerank_with_url_partionner-4', 2074)
-('pypagerank_dataframe-4', 637.178)
-('pypagerank_dataframe_with_url_partionner-4', 54)
+('8-pypagerank-0', 2622)
+('8-pypagerank_with_url_partionner-0', 2600)
+('8-pypagerank_dataframe-0', 746.277)
+('8-pypagerank-2', 1691.7)
+('8-pypagerank_with_url_partionner-2', 1423)
+('8-pypagerank_dataframe-2', 443.221)
+('8-pypagerank_dataframe_with_url_partionner-2', 416.764)
+('6-pypagerank-2', 2603.19)
+('6-pypagerank_with_url_partionner-2', 2543)
+('6-pypagerank_dataframe-2', 835.362)
+('6-pypagerank_dataframe_with_url_partionner-2', 785.516)
+('6-pypagerank-4', 2103.47)
+('6-pypagerank_with_url_partionner-4', 2074)
+('6-pypagerank_dataframe-4', 637.178)
+('6-pypagerank_dataframe_with_url_partionner-4', 540)
+
+error for ('8-pypagerank_dataframe_with_url_partionner-0', 766.673) 
+
