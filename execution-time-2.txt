@@ -1,0 +1,13 @@
+
+('pypagerank_dataframe-0', 73.6182)
+('pypagerank_dataframe_with_url_partionner-0', 230.17)
+('pypagerank-0', 62.9156)
+('pypagerank_with_url_partionner-0', 62.8279)
+('pypagerank_dataframe-2', 65.4879)
+('pypagerank_dataframe_with_url_partionner-2', 135.303)
+('pypagerank-2', 50.9928)
+('pypagerank_with_url_partionner-2', 53.2135)
+('pypagerank_dataframe-4', 57.5745)
+('pypagerank_dataframe_with_url_partionner-4', 110.322)
+('pypagerank-4', 55.7019)
+('pypagerank_with_url_partionner-4', 59.9835)
