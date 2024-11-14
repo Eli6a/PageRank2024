@@ -5,8 +5,8 @@ L'URL ayant obtenu le meilleur classement est `<http://dbpedia.org/resource/Livi
 
 ## Résultats
 
-![Graphique des résultats avec 8 cœurs](PageRank2024/report/8%20cores.png)
+![Graphique des résultats avec 8 cœurs](report/8%20cores.png)
 *Figure 1 : Résultats de l'exécution avec 8 cœurs.*
 
-![Comparaison des résultats avec différents nombres de cœurs](PageRank2024/report/different_cores.png)
+![Comparaison des résultats avec différents nombres de cœurs](report/different_cores.png)
 *Figure 2 : Comparaison des performances avec différents nombres de cœurs.*
